@@ -6,10 +6,21 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/record_start_bt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
+        android:text="开始"
+        app:layout_constraintBottom_toTopOf="@+id/record_stop_bt"
+        app:layout_constraintEnd_toEndOf="@+id/record_stop_bt"
+        app:layout_constraintStart_toStartOf="@+id/record_stop_bt"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/record_stop_bt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="停止"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

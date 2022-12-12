@@ -1,5 +1,8 @@
 package com.chenzb.recorder
 
+import android.content.Context
+import com.chenzb.recorder.data.enum.RecorderFormat
+import com.chenzb.recorder.presenter.M4aRecorderPresenter
 import com.chenzb.recorder.presenter.impl.IRecorderPresenter
 
 /**
@@ -7,20 +10,18 @@ import com.chenzb.recorder.presenter.impl.IRecorderPresenter
  * 创建日期：2022/12/11 20:48
  * 描述：录音管理类
  */
-class RecorderManager : IRecorderPresenter {
+class RecorderManager(builder: Builder) : IRecorderPresenter {
 
-    private lateinit var builder: Builder
+    private var recorderPresenter: IRecorderPresenter
 
-    private lateinit var recorderPresenter: IRecorderPresenter
-
-    constructor(): super()
-
-    constructor(builder: Builder): super() {
-        this.builder = builder
+    init {
+        this.recorderPresenter = when (builder.recordType) {
+            RecorderFormat.M4A -> M4aRecorderPresenter()
+        }
     }
 
-    override fun startRecording() {
-        recorderPresenter.startRecording()
+    override fun startRecording(context: Context) {
+        recorderPresenter.startRecording(context)
     }
 
     override fun pauseRecording() {
@@ -40,6 +41,13 @@ class RecorderManager : IRecorderPresenter {
     }
 
     open class Builder {
+
+        lateinit var recordType: RecorderFormat
+
+        fun setMode(type: RecorderFormat): Builder {
+            this.recordType = type
+            return this
+        }
 
         fun build(): IRecorderPresenter = RecorderManager(this)
     }
