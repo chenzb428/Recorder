@@ -9,6 +9,8 @@ import com.chenzb.recorder.config.RecorderConfig
 import com.chenzb.recorder.helper.RecorderHelper
 import com.chenzb.recorder.presenter.impl.IRecorderPresenter
 import java.io.File
+import java.util.Timer
+import java.util.TimerTask
 
 /**
  * 创建者：Chenzb
@@ -22,6 +24,11 @@ class M4aRecorderPresenter : IRecorderPresenter {
     private var mediaRecorder: MediaRecorder? = null
 
     private var outputFile: File? = null
+
+    private var timer: Timer? = null
+
+    private var updateTime: Long = 0L
+    private var totalRecordTime: Long = 0L
 
     override fun startRecording(context: Context) {
         outputFile = RecorderHelper.createRecordFile(RecorderConfig.m4aSavePath)
@@ -56,6 +63,9 @@ class M4aRecorderPresenter : IRecorderPresenter {
 
         // 成功开始录制
         if (mediaRecorder != null) {
+            updateTime = System.currentTimeMillis()
+            updateRecordingTime()
+
             recorderCallback?.onStartRecord()
         }
     }
@@ -69,6 +79,8 @@ class M4aRecorderPresenter : IRecorderPresenter {
     }
 
     override fun stopRecording() {
+        stopUpdateRecordingTime()
+
         try {
             mediaRecorder?.stop()
         } catch (e: RuntimeException) {
@@ -81,6 +93,7 @@ class M4aRecorderPresenter : IRecorderPresenter {
         recorderCallback?.onStopRecord(outputFile)
 
         // 释放资源
+        totalRecordTime = 0L
         mediaRecorder = null
         outputFile = null
     }
@@ -91,5 +104,36 @@ class M4aRecorderPresenter : IRecorderPresenter {
 
     override fun setRecorderCallback(callback: RecorderCallback) {
         this.recorderCallback = callback
+    }
+
+    /**
+     * 更新录音时间
+     */
+    private fun updateRecordingTime() {
+        if (timer == null) {
+            timer = Timer()
+        } else {
+            timer?.cancel()
+        }
+        timer?.schedule(object : TimerTask() {
+
+            override fun run() {
+                if (mediaRecorder != null) {
+                    val currentTimeMillis = System.currentTimeMillis()
+                    totalRecordTime += currentTimeMillis - updateTime
+                    updateTime = currentTimeMillis
+
+                    recorderCallback?.onRecordingProgress(totalRecordTime, mediaRecorder!!.maxAmplitude)
+                }
+            }
+        }, 0, 50L)
+    }
+
+    private fun stopUpdateRecordingTime() {
+        timer?.cancel()
+        timer?.purge()
+        timer = null
+
+        updateTime = 0L
     }
 }

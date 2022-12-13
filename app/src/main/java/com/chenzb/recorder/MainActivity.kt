@@ -12,7 +12,11 @@ import androidx.core.content.ContextCompat
 import com.chenzb.recorder.callback.RecorderCallback
 import com.chenzb.recorder.data.enum.RecorderFormat
 import com.chenzb.recorder.databinding.ActivityMainBinding
+import com.chenzb.recorder.utils.TimeUtils
 import java.io.File
+import java.text.DateFormat
+import java.text.Format
+import java.time.format.DateTimeFormatter
 
 class MainActivity : AppCompatActivity(), View.OnClickListener, RecorderCallback {
 
@@ -99,7 +103,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, RecorderCallback
     }
 
     override fun onStopRecord(file: File?) {
+        binding.recordTimeTv.text = TimeUtils.formatHourMinSec(0L)
         Toast.makeText(this, "录音结束，文件 -> " + file?.absolutePath, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onRecordingProgress(progress: Long, amplitude: Int) {
+        runOnUiThread {
+            binding.recordTimeTv.text = TimeUtils.formatHourMinSec(progress)
+        }
     }
 
     private fun checkRecorderPermission(): Boolean {
