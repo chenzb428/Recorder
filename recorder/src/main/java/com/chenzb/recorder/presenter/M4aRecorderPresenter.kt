@@ -4,9 +4,10 @@ import android.content.Context
 import android.media.MediaRecorder
 import android.os.Build
 import android.util.Log
+import com.chenzb.recorder.callback.RecorderCallback
 import com.chenzb.recorder.config.RecorderConfig
+import com.chenzb.recorder.helper.RecorderHelper
 import com.chenzb.recorder.presenter.impl.IRecorderPresenter
-import com.chenzb.recorder.utils.checkRecordFile
 import java.io.File
 
 /**
@@ -16,16 +17,16 @@ import java.io.File
  */
 class M4aRecorderPresenter : IRecorderPresenter {
 
+    private var recorderCallback: RecorderCallback? = null
+
     private var mediaRecorder: MediaRecorder? = null
 
     private var outputFile: File? = null
 
     override fun startRecording(context: Context) {
-        val savePath = "${RecorderConfig.FILE_SAVE_FOLDER_PATH}${File.separator}${RecorderConfig.FILE_NAME}.m4a"
+        outputFile = RecorderHelper.createRecordFile(RecorderConfig.m4aSavePath)
 
-        outputFile = checkRecordFile(savePath)
-
-        if (!outputFile!!.exists() || !outputFile!!.isFile) {
+        if (outputFile == null || !outputFile!!.exists() || !outputFile!!.isFile) {
             return
         }
 
@@ -50,7 +51,12 @@ class M4aRecorderPresenter : IRecorderPresenter {
             mediaRecorder?.prepare()
             mediaRecorder?.start()
         } catch (e: Exception) {
-            e.printStackTrace()
+            mediaRecorder = null
+        }
+
+        // 成功开始录制
+        if (mediaRecorder != null) {
+            recorderCallback?.onStartRecord()
         }
     }
 
@@ -69,11 +75,21 @@ class M4aRecorderPresenter : IRecorderPresenter {
             e.printStackTrace()
         }
 
+        // 释放 MediaRecorder
         mediaRecorder?.release()
+        // 回调录音结果
+        recorderCallback?.onStopRecord(outputFile)
+
+        // 释放资源
         mediaRecorder = null
+        outputFile = null
     }
 
     override fun cancelRecording() {
         Log.d("Chenzb", "M4aRecorderPresenter: cancelRecording.....")
+    }
+
+    override fun setRecorderCallback(callback: RecorderCallback) {
+        this.recorderCallback = callback
     }
 }

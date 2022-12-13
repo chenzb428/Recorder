@@ -6,6 +6,18 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/record_time_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="00:00"
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        app:layout_constraintBottom_toTopOf="@+id/record_start_bt"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/record_start_bt"
         android:layout_width="wrap_content"
@@ -15,6 +27,26 @@
         app:layout_constraintEnd_toEndOf="@+id/record_stop_bt"
         app:layout_constraintStart_toStartOf="@+id/record_stop_bt"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/record_paused_bt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="暂停"
+        app:layout_constraintBottom_toBottomOf="@+id/record_start_bt"
+        app:layout_constraintEnd_toStartOf="@+id/record_start_bt"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/record_start_bt" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/record_resume_bt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="继续"
+        app:layout_constraintBottom_toBottomOf="@+id/record_start_bt"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/record_start_bt"
+        app:layout_constraintTop_toTopOf="@+id/record_start_bt" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/record_stop_bt"

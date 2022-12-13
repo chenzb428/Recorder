@@ -1,6 +1,7 @@
 package com.chenzb.recorder.presenter.impl
 
 import android.content.Context
+import com.chenzb.recorder.callback.RecorderCallback
 
 /**
  * 创建者：Chenzb
@@ -33,4 +34,6 @@ interface IRecorderPresenter {
      * 取消录音
      */
     fun cancelRecording()
+
+    fun setRecorderCallback(callback: RecorderCallback)
 }

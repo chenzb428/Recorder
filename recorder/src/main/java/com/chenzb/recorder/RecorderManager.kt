@@ -1,6 +1,7 @@
 package com.chenzb.recorder
 
 import android.content.Context
+import com.chenzb.recorder.callback.RecorderCallback
 import com.chenzb.recorder.data.enum.RecorderFormat
 import com.chenzb.recorder.presenter.M4aRecorderPresenter
 import com.chenzb.recorder.presenter.impl.IRecorderPresenter
@@ -40,15 +41,19 @@ class RecorderManager(builder: Builder) : IRecorderPresenter {
         recorderPresenter.cancelRecording()
     }
 
+    override fun setRecorderCallback(callback: RecorderCallback) {
+        recorderPresenter.setRecorderCallback(callback)
+    }
+
     open class Builder {
 
         lateinit var recordType: RecorderFormat
 
-        fun setMode(type: RecorderFormat): Builder {
+        fun setFormat(type: RecorderFormat): Builder {
             this.recordType = type
             return this
         }
 
-        fun build(): IRecorderPresenter = RecorderManager(this)
+        fun build(): RecorderManager = RecorderManager(this)
     }
 }
