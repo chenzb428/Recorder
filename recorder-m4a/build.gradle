@@ -38,4 +38,7 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
 
     implementation(project(":recorder-base"))
+
+    implementation 'com.googlecode.mp4parser:isoparser:1.1.22'
+//    implementation 'org.mp4parser:isoparser:1.9.27'
 }

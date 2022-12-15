@@ -19,3 +19,9 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# mp4parser相关
+-keep public class com.mp4parser.** {*;}
+-keep public class org.mp4parser.** {*;}
+-keep public class com.coremedia.** {*;}
+-keep public class com.googlecode.** {*;}

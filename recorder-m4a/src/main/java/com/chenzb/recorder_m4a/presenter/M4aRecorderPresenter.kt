@@ -8,6 +8,9 @@ import com.chenzb.recorder_base.callback.RecorderCallback
 import com.chenzb.recorder_base.config.RecorderConfig
 import com.chenzb.recorder_base.helper.RecorderHelper
 import com.chenzb.recorder_base.presenter.impl.IRecorderPresenter
+import com.chenzb.recorder_base.utils.FastClickUtils
+import com.chenzb.recorder_base.utils.deleteFile
+import com.chenzb.recorder_m4a.utils.MediaUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,23 +34,51 @@ class M4aRecorderPresenter : IRecorderPresenter {
         }
     }
 
+    private var context: Context? = null
+
     private var recorderCallback: RecorderCallback? = null
 
     private var mediaRecorder: MediaRecorder? = null
 
+    /**
+     * 录音输出文件
+     */
     private var outputFile: File? = null
+
+    /**
+     * 录音缓存文件
+     */
+    private var listTempPaths: MutableList<String>? = null
 
     private var timer: Timer? = null
 
+    /**
+     * 录音是否进行中
+     */
     private var isRecording = AtomicBoolean(false)
+
+    /**
+     * 录音是否暂停
+     */
     private var isPaused = AtomicBoolean(false)
 
+    /**
+     * 记录当前时间
+     */
     private var updateTime: Long = 0L
+
+    /**
+     * 录音总时长
+     */
     private var totalRecordTime: Long = 0L
 
     override fun startRecording(context: Context) {
-
+        this.context = context
         outputFile = RecorderHelper.createRecordFile(savePath)
+
+        if (!isRecording.get()) {
+            listTempPaths = mutableListOf()
+        }
 
         if (outputFile == null || !outputFile!!.exists() || !outputFile!!.isFile) {
             return
@@ -82,81 +113,146 @@ class M4aRecorderPresenter : IRecorderPresenter {
             updateTime = System.currentTimeMillis()
             updateRecordingTime()
 
+            FastClickUtils.isFastDoubleClick(500L)
+
+            // 判断是否为暂停侯继续录制
+            if (isRecording.get()) {
+                recorderCallback?.onResumeRecord()
+            } else {
+                recorderCallback?.onStartRecord()
+            }
+
             isRecording.set(true)
             isPaused.set(false)
-
-            recorderCallback?.onStartRecord()
         }
     }
 
     override fun pauseRecording() {
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
-            if (mediaRecorder == null || !isRecording.get()) {
-                return
-            }
-
-            if (!isPaused.get()) {
-                try {
-                    mediaRecorder?.pause()
-                } catch (e: IllegalStateException) {
-                    release()
-                }
-
-                if (mediaRecorder != null) {
-                    totalRecordTime += System.currentTimeMillis() - updateTime
-                    stopUpdateRecordingTime()
-
-                    isPaused.set(true)
-
-                    recorderCallback?.onPauseRecord()
-                }
-            }
-        } else {
-            stopRecording()
-        }
-    }
-
-    override fun resumeRecording() {
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
-            if (mediaRecorder == null || !isPaused.get()) {
-                return
-            }
-
-            try {
-                mediaRecorder?.resume()
-            } catch (e: IllegalStateException) {
-                release()
-            }
-
-            if (mediaRecorder != null) {
-                updateTime = System.currentTimeMillis()
-                updateRecordingTime()
-
-                isPaused.set(false)
-
-                recorderCallback?.onResumeRecord()
-            }
-        }
-    }
-
-    override fun stopRecording() {
         if (mediaRecorder == null || !isRecording.get()) {
             return
         }
 
-        CoroutineScope(Dispatchers.IO).launch {
-            stopUpdateRecordingTime()
+        if (FastClickUtils.isFastDoubleClick(500L)) {
+            return
+        }
 
-            try {
-                mediaRecorder?.stop()
-            } catch (e: RuntimeException) {
-                release()
+//        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+//            if (!isPaused.get()) {
+//                try {
+//                    mediaRecorder?.pause()
+//                } catch (e: IllegalStateException) {
+//                    release()
+//                }
+//
+//                if (mediaRecorder != null) {
+//                    totalRecordTime += System.currentTimeMillis() - updateTime
+//                    stopUpdateRecordingTime()
+//
+//                    isPaused.set(true)
+//
+//                    recorderCallback?.onPauseRecord()
+//                }
+//            }
+//        } else {
+//
+//        }
+        pauseRecordingByStop()
+    }
+
+    override fun resumeRecording() {
+        if (!isPaused.get()) {
+            return
+        }
+
+        if (FastClickUtils.isFastDoubleClick(500L)) {
+            return
+        }
+
+//        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+//            if (mediaRecorder == null) {
+//                return
+//            }
+//            try {
+//                mediaRecorder?.resume()
+//            } catch (e: IllegalStateException) {
+//                release()
+//            }
+//
+//            if (mediaRecorder != null) {
+//                updateTime = System.currentTimeMillis()
+//                updateRecordingTime()
+//
+//                isPaused.set(false)
+//
+//                recorderCallback?.onResumeRecord()
+//            }
+//        } else {
+//
+//        }
+        if (context != null) {
+            startRecording(context!!)
+        }
+    }
+
+    override fun stopRecording() {
+        if (!isRecording.get() || totalRecordTime < 1000L) {
+            return
+        }
+
+        if (false) {
+            if (mediaRecorder == null) {
+                return
             }
 
-            if (mediaRecorder != null) {
+            CoroutineScope(Dispatchers.IO).launch {
+                stopUpdateRecordingTime()
+
+                try {
+                    mediaRecorder?.stop()
+                } catch (e: RuntimeException) {
+                    release()
+                }
+
+                if (mediaRecorder != null) {
+                    isRecording.set(false)
+
+                    mediaRecorder?.release()
+
+                    CoroutineScope(Dispatchers.Main).launch {
+                        recorderCallback?.onStopRecord(outputFile)
+
+                        totalRecordTime = 0L
+                        mediaRecorder = null
+                        outputFile = null
+                    }
+                }
+            }
+        } else {
+            CoroutineScope(Dispatchers.IO).launch {
+                stopUpdateRecordingTime()
+
+                try {
+                    mediaRecorder?.stop()
+                } catch (e: RuntimeException) {
+                    release()
+                }
+
                 isRecording.set(false)
 
                 mediaRecorder?.release()
+
+                if (!this@M4aRecorderPresenter.isPaused.get()) {
+                    listTempPaths?.add(outputFile!!.absolutePath)
+                }
+
+                if (!listTempPaths.isNullOrEmpty()) {
+                    outputFile = RecorderHelper.createRecordFile(savePath)
+                    MediaUtils.mergeMediaFiles(true, listTempPaths!!, outputFile!!.absolutePath)
+
+                    listTempPaths?.forEach {
+                        deleteFile(context!!, it)
+                    }
+                }
 
                 CoroutineScope(Dispatchers.Main).launch {
                     recorderCallback?.onStopRecord(outputFile)
@@ -177,6 +273,35 @@ class M4aRecorderPresenter : IRecorderPresenter {
         this.recorderCallback = callback
     }
 
+    private fun pauseRecordingByStop() {
+        CoroutineScope(Dispatchers.IO).launch {
+            totalRecordTime += System.currentTimeMillis() - updateTime
+            stopUpdateRecordingTime()
+
+            try {
+                mediaRecorder?.stop()
+            } catch (e: RuntimeException) {
+                release()
+            }
+
+            if (mediaRecorder != null) {
+                isPaused.set(true)
+
+                mediaRecorder?.release()
+
+                if (outputFile != null) {
+                    listTempPaths?.add(outputFile!!.absolutePath)
+                }
+
+                CoroutineScope(Dispatchers.Main).launch {
+                    recorderCallback?.onPauseRecord()
+                }
+
+                mediaRecorder = null
+            }
+        }
+    }
+
     /**
      * 更新录音时间
      */
@@ -194,7 +319,7 @@ class M4aRecorderPresenter : IRecorderPresenter {
                     totalRecordTime += currentTimeMillis - updateTime
                     updateTime = currentTimeMillis
 
-                    recorderCallback?.onRecordingProgress(totalRecordTime, mediaRecorder!!.maxAmplitude)
+                    recorderCallback?.onRecordingProgress(totalRecordTime, mediaRecorder?.maxAmplitude ?: 0)
                 }
             }
         }, 0, 50L)

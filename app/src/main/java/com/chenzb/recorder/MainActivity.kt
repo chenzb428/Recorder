@@ -100,6 +100,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, RecorderCallback
     }
 
     override fun onStartRecord() {
+        binding.recordStartBt.isEnabled = false
+        binding.recordStopBt.isEnabled = true
+
         Toast.makeText(this, "开始录音.....", Toast.LENGTH_SHORT).show()
     }
 
@@ -119,6 +122,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, RecorderCallback
         binding.recordTimeTv.text = TimeUtils.formatHourMinSec(0L)
         binding.recordResumeBt.setTextColor(Color.BLACK)
         binding.recordPausedBt.setTextColor(Color.BLACK)
+        binding.recordStartBt.isEnabled = true
+        binding.recordStopBt.isEnabled = false
 
         Toast.makeText(this, "录音结束，文件 -> " + file?.absolutePath, Toast.LENGTH_SHORT).show()
     }
