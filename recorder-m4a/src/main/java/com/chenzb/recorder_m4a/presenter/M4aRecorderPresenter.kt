@@ -136,27 +136,26 @@ class M4aRecorderPresenter : IRecorderPresenter {
             return
         }
 
-//        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
-//            if (!isPaused.get()) {
-//                try {
-//                    mediaRecorder?.pause()
-//                } catch (e: IllegalStateException) {
-//                    release()
-//                }
-//
-//                if (mediaRecorder != null) {
-//                    totalRecordTime += System.currentTimeMillis() - updateTime
-//                    stopUpdateRecordingTime()
-//
-//                    isPaused.set(true)
-//
-//                    recorderCallback?.onPauseRecord()
-//                }
-//            }
-//        } else {
-//
-//        }
-        pauseRecordingByStop()
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+            if (!isPaused.get()) {
+                try {
+                    mediaRecorder?.pause()
+                } catch (e: IllegalStateException) {
+                    release()
+                }
+
+                if (mediaRecorder != null) {
+                    totalRecordTime += System.currentTimeMillis() - updateTime
+                    stopUpdateRecordingTime()
+
+                    isPaused.set(true)
+
+                    recorderCallback?.onPauseRecord()
+                }
+            }
+        } else {
+            pauseRecordingByStop()
+        }
     }
 
     override fun resumeRecording() {
@@ -168,29 +167,28 @@ class M4aRecorderPresenter : IRecorderPresenter {
             return
         }
 
-//        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
-//            if (mediaRecorder == null) {
-//                return
-//            }
-//            try {
-//                mediaRecorder?.resume()
-//            } catch (e: IllegalStateException) {
-//                release()
-//            }
-//
-//            if (mediaRecorder != null) {
-//                updateTime = System.currentTimeMillis()
-//                updateRecordingTime()
-//
-//                isPaused.set(false)
-//
-//                recorderCallback?.onResumeRecord()
-//            }
-//        } else {
-//
-//        }
-        if (context != null) {
-            startRecording(context!!)
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+            if (mediaRecorder == null) {
+                return
+            }
+            try {
+                mediaRecorder?.resume()
+            } catch (e: IllegalStateException) {
+                release()
+            }
+
+            if (mediaRecorder != null) {
+                updateTime = System.currentTimeMillis()
+                updateRecordingTime()
+
+                isPaused.set(false)
+
+                recorderCallback?.onResumeRecord()
+            }
+        } else {
+            if (context != null) {
+                startRecording(context!!)
+            }
         }
     }
 
@@ -199,7 +197,7 @@ class M4aRecorderPresenter : IRecorderPresenter {
             return
         }
 
-        if (false) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
             if (mediaRecorder == null) {
                 return
             }
