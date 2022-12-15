@@ -2,6 +2,7 @@ package com.chenzb.recorder_base
 
 import android.content.Context
 import com.chenzb.recorder_base.callback.RecorderCallback
+import com.chenzb.recorder_base.config.RecorderConfig
 import com.chenzb.recorder_base.presenter.impl.IRecorderPresenter
 
 /**
@@ -48,6 +49,31 @@ class RecorderManager(builder: Builder) : IRecorderPresenter {
 
         fun setRecorderCallback(callback: RecorderCallback?): Builder {
             this.recorderPresenter.setRecorderCallback(callback)
+            return this
+        }
+
+        fun setSaveFolderPath(path: String): Builder {
+            RecorderConfig.SAVE_FOLDER_PATH = path
+            return this
+        }
+
+        fun setSaveFileName(fileName: String): Builder {
+            RecorderConfig.SAVE_FILE_NAME = fileName
+            return this
+        }
+
+        fun setAudioChannels(audioChannels: Int): Builder {
+            RecorderConfig.AUDIO_CHANNELS = audioChannels
+            return this
+        }
+
+        fun setAudioSamplingRate(samplingRate: Int): Builder {
+            RecorderConfig.AUDIO_SAMPLING_RATE = samplingRate
+            return this
+        }
+
+        fun setAudioEncodingBitRate(bitRate: Int): Builder {
+            RecorderConfig.AUDIO_ENCODING_BITRATE = bitRate
             return this
         }
 

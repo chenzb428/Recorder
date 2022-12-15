@@ -5,9 +5,9 @@ import android.media.MediaRecorder
 import android.os.Build
 import android.util.Log
 import com.chenzb.recorder_base.callback.RecorderCallback
+import com.chenzb.recorder_base.config.RecorderConfig
 import com.chenzb.recorder_base.helper.RecorderHelper
 import com.chenzb.recorder_base.presenter.impl.IRecorderPresenter
-import com.chenzb.recorder_m4a.config.RecorderConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,6 +23,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 class M4aRecorderPresenter : IRecorderPresenter {
 
     companion object {
+
+        val savePath = "${RecorderConfig.SAVE_FOLDER_PATH}${File.separator}${RecorderConfig.SAVE_FILE_NAME}.m4a"
 
         fun create(): M4aRecorderPresenter {
             return M4aRecorderPresenter()
@@ -44,7 +46,8 @@ class M4aRecorderPresenter : IRecorderPresenter {
     private var totalRecordTime: Long = 0L
 
     override fun startRecording(context: Context) {
-        outputFile = RecorderHelper.createRecordFile(RecorderConfig.m4aSavePath)
+
+        outputFile = RecorderHelper.createRecordFile(savePath)
 
         if (outputFile == null || !outputFile!!.exists() || !outputFile!!.isFile) {
             return
@@ -61,9 +64,9 @@ class M4aRecorderPresenter : IRecorderPresenter {
         mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
         mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
         mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-        mediaRecorder?.setAudioChannels(2)
-        mediaRecorder?.setAudioSamplingRate(48000)
-        mediaRecorder?.setAudioEncodingBitRate(256000)
+        mediaRecorder?.setAudioChannels(RecorderConfig.AUDIO_CHANNELS)
+        mediaRecorder?.setAudioSamplingRate(RecorderConfig.AUDIO_SAMPLING_RATE)
+        mediaRecorder?.setAudioEncodingBitRate(RecorderConfig.AUDIO_ENCODING_BITRATE)
         mediaRecorder?.setMaxDuration(-1)
         mediaRecorder?.setOutputFile(outputFile?.absolutePath)
 

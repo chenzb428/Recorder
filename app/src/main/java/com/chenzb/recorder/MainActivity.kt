@@ -37,6 +37,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, RecorderCallback
 
         recorderManager = RecorderManager.Builder()
             .setPresenter(M4aRecorderPresenter.create())
+            .setAudioChannels(2)
+            .setAudioSamplingRate(48000)
+            .setAudioEncodingBitRate(256000)
             .setRecorderCallback(this)
             .build()
 
