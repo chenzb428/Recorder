@@ -1,4 +1,4 @@
-package com.chenzb.recorder.config
+package com.chenzb.recorder_m4a.config
 
 import android.os.Environment
 import java.io.File

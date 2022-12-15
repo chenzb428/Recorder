@@ -1,8 +1,8 @@
-package com.chenzb.recorder.helper
+package com.chenzb.recorder_base.helper
 
-import com.chenzb.recorder.utils.getDirPath
-import com.chenzb.recorder.utils.getFileExtension
-import com.chenzb.recorder.utils.getFileNameNoExtension
+import com.chenzb.recorder_base.utils.getDirPath
+import com.chenzb.recorder_base.utils.getFileExtension
+import com.chenzb.recorder_base.utils.getFileNameNoExtension
 import java.io.File
 
 /**

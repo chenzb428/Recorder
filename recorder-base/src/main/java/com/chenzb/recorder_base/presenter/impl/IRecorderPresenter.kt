@@ -1,7 +1,7 @@
-package com.chenzb.recorder.presenter.impl
+package com.chenzb.recorder_base.presenter.impl
 
 import android.content.Context
-import com.chenzb.recorder.callback.RecorderCallback
+import com.chenzb.recorder_base.callback.RecorderCallback
 
 /**
  * 创建者：Chenzb

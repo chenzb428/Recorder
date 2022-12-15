@@ -9,14 +9,12 @@ import android.view.View
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.chenzb.recorder.callback.RecorderCallback
-import com.chenzb.recorder.data.enum.RecorderFormat
 import com.chenzb.recorder.databinding.ActivityMainBinding
 import com.chenzb.recorder.utils.TimeUtils
+import com.chenzb.recorder_base.RecorderManager
+import com.chenzb.recorder_base.callback.RecorderCallback
+import com.chenzb.recorder_m4a.presenter.M4aRecorderPresenter
 import java.io.File
-import java.text.DateFormat
-import java.text.Format
-import java.time.format.DateTimeFormatter
 
 class MainActivity : AppCompatActivity(), View.OnClickListener, RecorderCallback {
 
@@ -29,15 +27,15 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, RecorderCallback
 
     private lateinit var binding: ActivityMainBinding
 
-    private var recorderManager: RecorderManager? = null
+    private var recorderManager: RecorderManager<M4aRecorderPresenter>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        recorderManager = RecorderManager.Builder()
-            .setFormat(RecorderFormat.M4A)
+        recorderManager = RecorderManager.Builder<M4aRecorderPresenter>()
+            .setPresenter(M4aRecorderPresenter::class.java)
             .build()
 
         binding.recordStartBt.setOnClickListener(this)
@@ -103,6 +101,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, RecorderCallback
     }
 
     override fun onStopRecord(file: File?) {
+        binding.recordAmplitudeTv.text = "amplitude: 0"
         binding.recordTimeTv.text = TimeUtils.formatHourMinSec(0L)
         Toast.makeText(this, "录音结束，文件 -> " + file?.absolutePath, Toast.LENGTH_SHORT).show()
     }
@@ -110,6 +109,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, RecorderCallback
     override fun onRecordingProgress(progress: Long, amplitude: Int) {
         runOnUiThread {
             binding.recordTimeTv.text = TimeUtils.formatHourMinSec(progress)
+            binding.recordAmplitudeTv.text = "amplitude: $amplitude"
         }
     }
 

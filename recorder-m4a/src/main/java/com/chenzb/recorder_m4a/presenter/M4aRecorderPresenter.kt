@@ -1,13 +1,16 @@
-package com.chenzb.recorder.presenter
+package com.chenzb.recorder_m4a.presenter
 
 import android.content.Context
 import android.media.MediaRecorder
 import android.os.Build
 import android.util.Log
-import com.chenzb.recorder.callback.RecorderCallback
-import com.chenzb.recorder.config.RecorderConfig
-import com.chenzb.recorder.helper.RecorderHelper
-import com.chenzb.recorder.presenter.impl.IRecorderPresenter
+import com.chenzb.recorder_m4a.config.RecorderConfig
+import com.chenzb.recorder_base.callback.RecorderCallback
+import com.chenzb.recorder_base.helper.RecorderHelper
+import com.chenzb.recorder_base.presenter.impl.IRecorderPresenter
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.File
 import java.util.Timer
 import java.util.TimerTask
@@ -79,23 +82,28 @@ class M4aRecorderPresenter : IRecorderPresenter {
     }
 
     override fun stopRecording() {
-        stopUpdateRecordingTime()
+        CoroutineScope(Dispatchers.IO).launch {
+            stopUpdateRecordingTime()
 
-        try {
-            mediaRecorder?.stop()
-        } catch (e: RuntimeException) {
-            e.printStackTrace()
+            try {
+                mediaRecorder?.stop()
+            } catch (e: RuntimeException) {
+                e.printStackTrace()
+            }
+
+            // 释放 MediaRecorder
+            mediaRecorder?.release()
+
+            // 回调录音结果
+            CoroutineScope(Dispatchers.Main).launch {
+                recorderCallback?.onStopRecord(outputFile)
+
+                // 释放资源
+                totalRecordTime = 0L
+                mediaRecorder = null
+                outputFile = null
+            }
         }
-
-        // 释放 MediaRecorder
-        mediaRecorder?.release()
-        // 回调录音结果
-        recorderCallback?.onStopRecord(outputFile)
-
-        // 释放资源
-        totalRecordTime = 0L
-        mediaRecorder = null
-        outputFile = null
     }
 
     override fun cancelRecording() {

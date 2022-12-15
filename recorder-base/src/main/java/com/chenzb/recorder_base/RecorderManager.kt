@@ -1,24 +1,20 @@
-package com.chenzb.recorder
+package com.chenzb.recorder_base
 
 import android.content.Context
-import com.chenzb.recorder.callback.RecorderCallback
-import com.chenzb.recorder.data.enum.RecorderFormat
-import com.chenzb.recorder.presenter.M4aRecorderPresenter
-import com.chenzb.recorder.presenter.impl.IRecorderPresenter
+import com.chenzb.recorder_base.callback.RecorderCallback
+import com.chenzb.recorder_base.presenter.impl.IRecorderPresenter
 
 /**
  * 创建者：Chenzb
  * 创建日期：2022/12/11 20:48
  * 描述：录音管理类
  */
-class RecorderManager(builder: Builder) : IRecorderPresenter {
+class RecorderManager<T: IRecorderPresenter>(builder: Builder<T>) : IRecorderPresenter {
 
     private var recorderPresenter: IRecorderPresenter
 
     init {
-        this.recorderPresenter = when (builder.recordType) {
-            RecorderFormat.M4A -> M4aRecorderPresenter()
-        }
+        this.recorderPresenter = builder.recorderPresenterClass.newInstance()
     }
 
     override fun startRecording(context: Context) {
@@ -45,15 +41,15 @@ class RecorderManager(builder: Builder) : IRecorderPresenter {
         recorderPresenter.setRecorderCallback(callback)
     }
 
-    open class Builder {
+    open class Builder<T: IRecorderPresenter> {
 
-        lateinit var recordType: RecorderFormat
+        lateinit var recorderPresenterClass: Class<T>
 
-        fun setFormat(type: RecorderFormat): Builder {
-            this.recordType = type
+        fun setPresenter(recorderPresenterClass: Class<T>): Builder<T> {
+            this.recorderPresenterClass = recorderPresenterClass
             return this
         }
 
-        fun build(): RecorderManager = RecorderManager(this)
+        fun build(): RecorderManager<T> = RecorderManager(this)
     }
 }

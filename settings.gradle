@@ -17,4 +17,6 @@ dependencyResolutionManagement {
 rootProject.name = "Recorder"
 
 include ':app'
-include ':recorder'
+
+include ':recorder-base'
+include ':recorder-m4a'
