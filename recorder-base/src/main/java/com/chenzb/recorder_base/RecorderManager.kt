@@ -9,13 +9,9 @@ import com.chenzb.recorder_base.presenter.impl.IRecorderPresenter
  * 创建日期：2022/12/11 20:48
  * 描述：录音管理类
  */
-class RecorderManager<T: IRecorderPresenter>(builder: Builder<T>) : IRecorderPresenter {
+class RecorderManager(builder: Builder) : IRecorderPresenter {
 
-    private var recorderPresenter: IRecorderPresenter
-
-    init {
-        this.recorderPresenter = builder.recorderPresenterClass.newInstance()
-    }
+    private var recorderPresenter: IRecorderPresenter = builder.recorderPresenter
 
     override fun startRecording(context: Context) {
         recorderPresenter.startRecording(context)
@@ -37,19 +33,24 @@ class RecorderManager<T: IRecorderPresenter>(builder: Builder<T>) : IRecorderPre
         recorderPresenter.cancelRecording()
     }
 
-    override fun setRecorderCallback(callback: RecorderCallback) {
+    override fun setRecorderCallback(callback: RecorderCallback?) {
         recorderPresenter.setRecorderCallback(callback)
     }
 
-    open class Builder<T: IRecorderPresenter> {
+    open class Builder {
 
-        lateinit var recorderPresenterClass: Class<T>
+        lateinit var recorderPresenter: IRecorderPresenter
 
-        fun setPresenter(recorderPresenterClass: Class<T>): Builder<T> {
-            this.recorderPresenterClass = recorderPresenterClass
+        fun setPresenter(recorderPresenter: IRecorderPresenter): Builder {
+            this.recorderPresenter = recorderPresenter
             return this
         }
 
-        fun build(): RecorderManager<T> = RecorderManager(this)
+        fun setRecorderCallback(callback: RecorderCallback?): Builder {
+            this.recorderPresenter.setRecorderCallback(callback)
+            return this
+        }
+
+        fun build(): RecorderManager = RecorderManager(this)
     }
 }

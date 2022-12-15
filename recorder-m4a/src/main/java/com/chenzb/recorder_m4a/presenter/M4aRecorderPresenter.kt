@@ -4,16 +4,16 @@ import android.content.Context
 import android.media.MediaRecorder
 import android.os.Build
 import android.util.Log
-import com.chenzb.recorder_m4a.config.RecorderConfig
 import com.chenzb.recorder_base.callback.RecorderCallback
 import com.chenzb.recorder_base.helper.RecorderHelper
 import com.chenzb.recorder_base.presenter.impl.IRecorderPresenter
+import com.chenzb.recorder_m4a.config.RecorderConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
-import java.util.Timer
-import java.util.TimerTask
+import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * 创建者：Chenzb
@@ -22,6 +22,13 @@ import java.util.TimerTask
  */
 class M4aRecorderPresenter : IRecorderPresenter {
 
+    companion object {
+
+        fun create(): M4aRecorderPresenter {
+            return M4aRecorderPresenter()
+        }
+    }
+
     private var recorderCallback: RecorderCallback? = null
 
     private var mediaRecorder: MediaRecorder? = null
@@ -29,6 +36,9 @@ class M4aRecorderPresenter : IRecorderPresenter {
     private var outputFile: File? = null
 
     private var timer: Timer? = null
+
+    private var isRecording = AtomicBoolean(false)
+    private var isPaused = AtomicBoolean(false)
 
     private var updateTime: Long = 0L
     private var totalRecordTime: Long = 0L
@@ -61,7 +71,7 @@ class M4aRecorderPresenter : IRecorderPresenter {
             mediaRecorder?.prepare()
             mediaRecorder?.start()
         } catch (e: Exception) {
-            mediaRecorder = null
+            release()
         }
 
         // 成功开始录制
@@ -69,39 +79,89 @@ class M4aRecorderPresenter : IRecorderPresenter {
             updateTime = System.currentTimeMillis()
             updateRecordingTime()
 
+            isRecording.set(true)
+            isPaused.set(false)
+
             recorderCallback?.onStartRecord()
         }
     }
 
     override fun pauseRecording() {
-        Log.d("Chenzb", "M4aRecorderPresenter: pauseRecording.....")
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+            if (mediaRecorder == null || !isRecording.get()) {
+                return
+            }
+
+            if (!isPaused.get()) {
+                try {
+                    mediaRecorder?.pause()
+                } catch (e: IllegalStateException) {
+                    release()
+                }
+
+                if (mediaRecorder != null) {
+                    totalRecordTime += System.currentTimeMillis() - updateTime
+                    stopUpdateRecordingTime()
+
+                    isPaused.set(true)
+
+                    recorderCallback?.onPauseRecord()
+                }
+            }
+        } else {
+            stopRecording()
+        }
     }
 
     override fun resumeRecording() {
-        Log.d("Chenzb", "M4aRecorderPresenter: resumeRecording.....")
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+            if (mediaRecorder == null || !isPaused.get()) {
+                return
+            }
+
+            try {
+                mediaRecorder?.resume()
+            } catch (e: IllegalStateException) {
+                release()
+            }
+
+            if (mediaRecorder != null) {
+                updateTime = System.currentTimeMillis()
+                updateRecordingTime()
+
+                isPaused.set(false)
+
+                recorderCallback?.onResumeRecord()
+            }
+        }
     }
 
     override fun stopRecording() {
+        if (mediaRecorder == null || !isRecording.get()) {
+            return
+        }
+
         CoroutineScope(Dispatchers.IO).launch {
             stopUpdateRecordingTime()
 
             try {
                 mediaRecorder?.stop()
             } catch (e: RuntimeException) {
-                e.printStackTrace()
+                release()
             }
 
-            // 释放 MediaRecorder
-            mediaRecorder?.release()
+            if (mediaRecorder != null) {
+                isRecording.set(false)
 
-            // 回调录音结果
-            CoroutineScope(Dispatchers.Main).launch {
-                recorderCallback?.onStopRecord(outputFile)
+                mediaRecorder?.release()
 
-                // 释放资源
-                totalRecordTime = 0L
-                mediaRecorder = null
-                outputFile = null
+                CoroutineScope(Dispatchers.Main).launch {
+                    recorderCallback?.onStopRecord(outputFile)
+
+                    totalRecordTime = 0L
+                    mediaRecorder = null
+                    outputFile = null
+                }
             }
         }
     }
@@ -110,7 +170,7 @@ class M4aRecorderPresenter : IRecorderPresenter {
         Log.d("Chenzb", "M4aRecorderPresenter: cancelRecording.....")
     }
 
-    override fun setRecorderCallback(callback: RecorderCallback) {
+    override fun setRecorderCallback(callback: RecorderCallback?) {
         this.recorderCallback = callback
     }
 
@@ -137,11 +197,22 @@ class M4aRecorderPresenter : IRecorderPresenter {
         }, 0, 50L)
     }
 
+    /**
+     * 停止更新录音时间
+     */
     private fun stopUpdateRecordingTime() {
         timer?.cancel()
         timer?.purge()
         timer = null
 
         updateTime = 0L
+    }
+
+    private fun release() {
+        stopUpdateRecordingTime()
+
+        totalRecordTime = 0L
+        mediaRecorder = null
+        outputFile = null
     }
 }

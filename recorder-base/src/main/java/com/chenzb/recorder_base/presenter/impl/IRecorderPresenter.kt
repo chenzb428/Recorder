@@ -35,5 +35,5 @@ interface IRecorderPresenter {
      */
     fun cancelRecording()
 
-    fun setRecorderCallback(callback: RecorderCallback)
+    fun setRecorderCallback(callback: RecorderCallback?)
 }

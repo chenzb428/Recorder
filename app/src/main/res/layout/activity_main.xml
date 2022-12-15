@@ -43,9 +43,9 @@
         android:layout_height="wrap_content"
         android:text="暂停"
         app:layout_constraintBottom_toBottomOf="@+id/record_start_bt"
-        app:layout_constraintEnd_toStartOf="@+id/record_start_bt"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/record_start_bt" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/record_start_bt"
+        app:layout_constraintTop_toTopOf="@+id/record_start_bt"/>
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/record_resume_bt"
@@ -53,8 +53,8 @@
         android:layout_height="wrap_content"
         android:text="继续"
         app:layout_constraintBottom_toBottomOf="@+id/record_start_bt"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/record_start_bt"
+        app:layout_constraintEnd_toStartOf="@+id/record_start_bt"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/record_start_bt" />
 
     <androidx.appcompat.widget.AppCompatButton

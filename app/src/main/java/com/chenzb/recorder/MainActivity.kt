@@ -3,6 +3,7 @@ package com.chenzb.recorder
 import android.Manifest.permission.RECORD_AUDIO
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.content.pm.PackageManager
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -27,23 +28,22 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, RecorderCallback
 
     private lateinit var binding: ActivityMainBinding
 
-    private var recorderManager: RecorderManager<M4aRecorderPresenter>? = null
+    private var recorderManager: RecorderManager? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        recorderManager = RecorderManager.Builder<M4aRecorderPresenter>()
-            .setPresenter(M4aRecorderPresenter::class.java)
+        recorderManager = RecorderManager.Builder()
+            .setPresenter(M4aRecorderPresenter.create())
+            .setRecorderCallback(this)
             .build()
 
         binding.recordStartBt.setOnClickListener(this)
         binding.recordPausedBt.setOnClickListener(this)
         binding.recordResumeBt.setOnClickListener(this)
         binding.recordStopBt.setOnClickListener(this)
-
-        recorderManager?.setRecorderCallback(this)
     }
 
     override fun onClick(v: View?) {
@@ -100,9 +100,23 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, RecorderCallback
         Toast.makeText(this, "开始录音.....", Toast.LENGTH_SHORT).show()
     }
 
+    override fun onPauseRecord() {
+        binding.recordResumeBt.setTextColor(Color.BLACK)
+        binding.recordPausedBt.setTextColor(Color.RED)
+
+    }
+
+    override fun onResumeRecord() {
+        binding.recordResumeBt.setTextColor(Color.RED)
+        binding.recordPausedBt.setTextColor(Color.BLACK)
+    }
+
     override fun onStopRecord(file: File?) {
         binding.recordAmplitudeTv.text = "amplitude: 0"
         binding.recordTimeTv.text = TimeUtils.formatHourMinSec(0L)
+        binding.recordResumeBt.setTextColor(Color.BLACK)
+        binding.recordPausedBt.setTextColor(Color.BLACK)
+
         Toast.makeText(this, "录音结束，文件 -> " + file?.absolutePath, Toast.LENGTH_SHORT).show()
     }
 
