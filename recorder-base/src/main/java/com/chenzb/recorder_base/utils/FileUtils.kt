@@ -17,8 +17,8 @@ import java.io.IOException
 /**
  * 删除文件
  */
-fun deleteFile(context: Context, filePath: String?): Boolean {
-    if (filePath.isNullOrEmpty()) {
+fun deleteFile(context: Context?, filePath: String?): Boolean {
+    if (context == null || filePath.isNullOrEmpty()) {
         return false
     }
 
@@ -32,8 +32,8 @@ fun deleteFile(context: Context, filePath: String?): Boolean {
 /**
  * 检查文件是否存在
  */
-fun isFileExist(context: Context, filePath: String?): Boolean {
-    if (filePath.isNullOrEmpty()) {
+fun isFileExist(context: Context?, filePath: String?): Boolean {
+    if (context == null || filePath.isNullOrEmpty()) {
         return false
     }
 

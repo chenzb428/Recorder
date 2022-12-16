@@ -47,6 +47,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, RecorderCallback
         binding.recordPausedBt.setOnClickListener(this)
         binding.recordResumeBt.setOnClickListener(this)
         binding.recordStopBt.setOnClickListener(this)
+        binding.recordCancelBt.setOnClickListener(this)
     }
 
     override fun onClick(v: View?) {
@@ -64,6 +65,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, RecorderCallback
             R.id.record_resume_bt -> recorderManager?.resumeRecording()
 
             R.id.record_stop_bt -> recorderManager?.stopRecording()
+
+            R.id.record_cancel_bt -> recorderManager?.cancelRecording()
         }
     }
 
@@ -102,6 +105,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, RecorderCallback
     override fun onStartRecord() {
         binding.recordStartBt.isEnabled = false
         binding.recordStopBt.isEnabled = true
+        binding.recordCancelBt.isEnabled = true
 
         Toast.makeText(this, "开始录音.....", Toast.LENGTH_SHORT).show()
     }
@@ -124,8 +128,21 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, RecorderCallback
         binding.recordPausedBt.setTextColor(Color.BLACK)
         binding.recordStartBt.isEnabled = true
         binding.recordStopBt.isEnabled = false
+        binding.recordCancelBt.isEnabled = false
 
         Toast.makeText(this, "录音结束，文件 -> " + file?.absolutePath, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onCancelRecord() {
+        binding.recordAmplitudeTv.text = "amplitude: 0"
+        binding.recordTimeTv.text = TimeUtils.formatHourMinSec(0L)
+        binding.recordResumeBt.setTextColor(Color.BLACK)
+        binding.recordPausedBt.setTextColor(Color.BLACK)
+        binding.recordStartBt.isEnabled = true
+        binding.recordStopBt.isEnabled = false
+        binding.recordCancelBt.isEnabled = false
+
+        Toast.makeText(this, "取消录音", Toast.LENGTH_SHORT).show()
     }
 
     override fun onRecordingProgress(progress: Long, amplitude: Int) {

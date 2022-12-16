@@ -3,7 +3,6 @@ package com.chenzb.recorder_m4a.presenter
 import android.content.Context
 import android.media.MediaRecorder
 import android.os.Build
-import android.util.Log
 import com.chenzb.recorder_base.callback.RecorderCallback
 import com.chenzb.recorder_base.config.RecorderConfig
 import com.chenzb.recorder_base.helper.RecorderHelper
@@ -250,6 +249,9 @@ class M4aRecorderPresenter : IRecorderPresenter {
                     listTempPaths?.forEach {
                         deleteFile(context!!, it)
                     }
+
+                    listTempPaths?.clear()
+                    listTempPaths = null
                 }
 
                 CoroutineScope(Dispatchers.Main).launch {
@@ -264,7 +266,32 @@ class M4aRecorderPresenter : IRecorderPresenter {
     }
 
     override fun cancelRecording() {
-        Log.d("Chenzb", "M4aRecorderPresenter: cancelRecording.....")
+        CoroutineScope(Dispatchers.IO).launch {
+            stopUpdateRecordingTime()
+
+            mediaRecorder?.release()
+
+            isRecording.set(false)
+            isPaused.set(false)
+
+            deleteFile(context, outputFile!!.absolutePath)
+
+            if (!listTempPaths.isNullOrEmpty()) {
+                listTempPaths?.forEach {
+                    deleteFile(context, it)
+                }
+                listTempPaths?.clear()
+                listTempPaths = null
+            }
+
+            CoroutineScope(Dispatchers.Main).launch {
+                recorderCallback?.onCancelRecord()
+            }
+
+            totalRecordTime = 0L
+            mediaRecorder = null
+            outputFile = null
+        }
     }
 
     override fun setRecorderCallback(callback: RecorderCallback?) {

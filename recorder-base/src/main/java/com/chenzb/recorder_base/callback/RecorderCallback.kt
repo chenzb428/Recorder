@@ -17,5 +17,7 @@ interface RecorderCallback {
 
     fun onStopRecord(file: File?)
 
+    fun onCancelRecord()
+
     fun onRecordingProgress(progress: Long, amplitude: Int)
 }
