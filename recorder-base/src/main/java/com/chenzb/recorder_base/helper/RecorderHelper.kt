@@ -23,22 +23,26 @@ object RecorderHelper {
             fileDir.mkdirs()
         }
 
-        var file: File?
         val fileName = getFileNameNoExtension(path)
         val fileExtension = getFileExtension(path)
+        var file = File("$fileDir${File.separator}$fileName.$fileExtension")
+
         var i = 1
+        if (file.exists()) {
+            while (true) {
+                val name = "$fileName-$i"
 
-        while (true) {
-            val name = "$fileName-$i"
+                file = File("$fileDir${File.separator}$name.$fileExtension")
 
-            file = File("$fileDir${File.separator}$name.$fileExtension")
-
-            if (file.exists()) {
-                i ++
-            } else {
-                file.createNewFile()
-                break
+                if (file.exists()) {
+                    i ++
+                } else {
+                    file.createNewFile()
+                    break
+                }
             }
+        } else {
+            file.createNewFile()
         }
 
         return file

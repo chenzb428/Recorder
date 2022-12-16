@@ -22,14 +22,20 @@ import java.util.concurrent.atomic.AtomicBoolean
  * 创建日期：2022/12/11 22:53
  * 描述：录音：m4a格式
  */
-class M4aRecorderPresenter : IRecorderPresenter {
+class M4aRecorderPresenter(
+    private val folderPath: String,
+    private val fileName: String
+) : IRecorderPresenter {
 
     companion object {
 
-        val savePath = "${RecorderConfig.SAVE_FOLDER_PATH}${File.separator}${RecorderConfig.SAVE_FILE_NAME}.m4a"
+        var savePath: String? = null
 
-        fun create(): M4aRecorderPresenter {
-            return M4aRecorderPresenter()
+        fun create(
+            folderPath: String = RecorderConfig.SAVE_FOLDER_PATH,
+            fileName: String = RecorderConfig.SAVE_FILE_NAME
+        ): M4aRecorderPresenter {
+            return M4aRecorderPresenter(folderPath, fileName)
         }
     }
 
@@ -73,7 +79,8 @@ class M4aRecorderPresenter : IRecorderPresenter {
 
     override fun startRecording(context: Context) {
         this.context = context
-        outputFile = RecorderHelper.createRecordFile(savePath)
+        savePath = "$folderPath${File.separator}$fileName.m4a"
+        outputFile = RecorderHelper.createRecordFile(savePath!!)
 
         if (!isRecording.get()) {
             listTempPaths = mutableListOf()
@@ -220,6 +227,7 @@ class M4aRecorderPresenter : IRecorderPresenter {
 
                         totalRecordTime = 0L
                         mediaRecorder = null
+                        savePath = null
                         outputFile = null
                     }
                 }
@@ -243,7 +251,7 @@ class M4aRecorderPresenter : IRecorderPresenter {
                 }
 
                 if (!listTempPaths.isNullOrEmpty()) {
-                    outputFile = RecorderHelper.createRecordFile(savePath)
+                    outputFile = RecorderHelper.createRecordFile(savePath!!)
                     MediaUtils.mergeMediaFiles(true, listTempPaths!!, outputFile!!.absolutePath)
 
                     listTempPaths?.forEach {
@@ -259,6 +267,7 @@ class M4aRecorderPresenter : IRecorderPresenter {
 
                     totalRecordTime = 0L
                     mediaRecorder = null
+                    savePath = null
                     outputFile = null
                 }
             }
@@ -290,6 +299,7 @@ class M4aRecorderPresenter : IRecorderPresenter {
 
             totalRecordTime = 0L
             mediaRecorder = null
+            savePath = null
             outputFile = null
         }
     }
@@ -366,6 +376,7 @@ class M4aRecorderPresenter : IRecorderPresenter {
 
         totalRecordTime = 0L
         mediaRecorder = null
+        savePath = null
         outputFile = null
     }
 }

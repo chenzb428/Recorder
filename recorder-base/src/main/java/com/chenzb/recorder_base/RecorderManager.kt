@@ -52,16 +52,6 @@ class RecorderManager(builder: Builder) : IRecorderPresenter {
             return this
         }
 
-        fun setSaveFolderPath(path: String): Builder {
-            RecorderConfig.SAVE_FOLDER_PATH = path
-            return this
-        }
-
-        fun setSaveFileName(fileName: String): Builder {
-            RecorderConfig.SAVE_FILE_NAME = fileName
-            return this
-        }
-
         fun setAudioChannels(audioChannels: Int): Builder {
             RecorderConfig.AUDIO_CHANNELS = audioChannels
             return this
