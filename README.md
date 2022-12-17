@@ -1,4 +1,4 @@
-# Android 录音工具
+## Android 录音工具
 基于MediaRecorder封装的Android录音库，目前只有m4a录制格式，后续有时间会增加其他录制格式
 
 ## 引入依赖
@@ -59,10 +59,8 @@ recorderManager?.pauseRecording(this)
 recorderManager?.resumeRecording(this)
 recorderManager?.stopRecording(this)
 recorderManager?.cancelRecording(this)
-```
 
-# 录音回调
-```
+// 录音回调
 override fun onStartRecord() {
     // 录音开始回调
 }
@@ -91,10 +89,10 @@ override fun onRecordingProgress(progress: Long, amplitude: Int) {
 
 ## 版本更新记录
 
-## recorder-base
-# v1.0.0 (2022-12-17)
+### recorder-base
+#### v1.0.0 (2022-12-17)
 首个版本发布
 
-## recorder-m4a
-# v1.0.0 (2022-12-17)
+### recorder-m4a
+#### v1.0.0 (2022-12-17)
 首个版本发布
