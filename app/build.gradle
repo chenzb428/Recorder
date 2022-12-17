@@ -50,8 +50,10 @@ dependencies {
 
     implementation 'com.google.android.material:material:1.7.0'
 
-    implementation project(":recorder-base")
-    implementation project(":recorder-m4a")
+//    implementation project(":recorder-base")
+//    implementation project(":recorder-m4a")
+    implementation 'io.github.chenzb428:recorder-base:1.0.0'
+    implementation 'io.github.chenzb428:recorder-m4a:1.0.0'
 
     // ConstraintLayout
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
