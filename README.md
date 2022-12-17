@@ -54,11 +54,11 @@ recorderManager = RecorderManager.Builder()
         .build()
             
 // 控制 开始、暂停、继续、停止、取消录制
-recorderManager?.startRecording(this)
-recorderManager?.pauseRecording(this)
-recorderManager?.resumeRecording(this)
-recorderManager?.stopRecording(this)
-recorderManager?.cancelRecording(this)
+recorderManager?.startRecording()
+recorderManager?.pauseRecording()
+recorderManager?.resumeRecording()
+recorderManager?.stopRecording()
+recorderManager?.cancelRecording()
 
 // 录音回调
 override fun onStartRecord() {
