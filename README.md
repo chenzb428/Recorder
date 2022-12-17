@@ -87,12 +87,14 @@ override fun onRecordingProgress(progress: Long, amplitude: Int) {
 ```
 
 
+
 ## 版本更新记录
 
 ### recorder-base
 #### v1.0.0 (2022-12-17)
-首个版本发布
+ - 首个版本发布
+
 
 ### recorder-m4a
 #### v1.0.0 (2022-12-17)
-首个版本发布
+ - 首个版本发布
